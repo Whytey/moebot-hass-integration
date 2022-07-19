@@ -19,9 +19,9 @@ _LOGGER = logging.getLogger(__name__)
 # TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required("device_id", description={"suggested_value": "bff5649735c1e5c0a38deu"}): str,
-        vol.Required("ip_address", description={"suggested_value": "192.168.0.210"}): str,
-        vol.Required("local_key", description={"suggested_value": "a7443fc96034e527"}): str,
+        vol.Required("device_id"): str,
+        vol.Required("ip_address"): str,
+        vol.Required("local_key"): str,
     }
 )
 
