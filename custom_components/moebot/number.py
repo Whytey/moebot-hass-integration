@@ -33,7 +33,7 @@ class WorkingTimeNumber(BaseMoeBotEntity, NumberEntity):
         self._number_option_unit_of_measurement = "hrs"
 
     @property
-    def native_value(self) -> float | None:
+    def native_value(self) -> float:
         return self._moebot.mow_time
 
     def set_native_value(self, value: float) -> None:
