@@ -2,15 +2,17 @@
 from __future__ import annotations
 
 import logging
-from pymoebot import MoeBot
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import Entity, DeviceInfo
+from pymoebot import MoeBot
+
 from .const import DOMAIN
 
 PLATFORMS: list[Platform] = [Platform.VACUUM, Platform.SENSOR, Platform.NUMBER, Platform.SWITCH]
-_log = logging.getLogger()
+_log = logging.getLogger(__package__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -30,3 +32,34 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
+
+
+class BaseMoeBotEntity(Entity):
+    """The abstract base device for all MoeBot entities."""
+
+    def __init__(self, moebot: MoeBot):
+        self._moebot = moebot
+
+        # MoeBot class is LOCAL PUSH, so we tell HA that it should not be polled
+        self._attr_should_poll = False
+
+        # Link this Entity under the MoeBot (vacuum) device by ensuring this property returns an
+        # identifiers value matching that used in the vacuum Entity, but no other information.
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, self._moebot.id)}
+        )
+
+    async def async_added_to_hass(self) -> None:
+        """Run when this Entity has been added to HA."""
+
+        # The call back registration is done once this entity is registered with HA
+        # (rather than in the __init__)
+        def listener(raw_msg):
+            _log.info("Got an update: %r" % raw_msg)
+            self.async_write_ha_state()
+
+        self._moebot.add_listener(listener)
+
+    @property
+    def available(self) -> bool:
+        return self._moebot.state is not None
