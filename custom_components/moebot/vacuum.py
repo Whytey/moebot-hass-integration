@@ -26,6 +26,7 @@ _STATUS_TO_HA = {
     "PARK": STATE_RETURNING,
     "CHARGING_WITH_TASK_SUSPEND": STATE_DOCKED,
     "FIXED_MOWING": STATE_CLEANING,
+    "ERROR": STATE_ERROR,
 }
 
 _log = logging.getLogger(__package__)
