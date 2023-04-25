@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import Platform, EVENT_HOMEASSISTANT_STOP
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity, DeviceInfo
 from pymoebot import MoeBot
@@ -21,14 +21,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _log.info("Created a moebot: %r" % moebot)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = moebot
 
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    def shutdown_moebot(event):
+        _log.debug("In the shutdown callback")
+        moebot.unlisten()
 
+    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, shutdown_moebot)
+
+    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
+        moebot = hass.data[DOMAIN][entry.entry_id]
+        moebot.unlisten()
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
@@ -55,7 +62,7 @@ class BaseMoeBotEntity(Entity):
         # The call back registration is done once this entity is registered with HA
         # (rather than in the __init__)
         def listener(raw_msg):
-            _log.info("Got an update: %r" % raw_msg)
+            _log.debug("%r got an update: %r" % (self.__class__.__name__, raw_msg))
             self.async_write_ha_state()
 
         self._moebot.add_listener(listener)

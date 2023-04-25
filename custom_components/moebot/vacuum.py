@@ -68,7 +68,6 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
         self._attr_supported_features |= VacuumEntityFeature.RETURN_HOME
         self._attr_supported_features |= VacuumEntityFeature.BATTERY
         self._attr_supported_features |= VacuumEntityFeature.STATUS
-        self._attr_supported_features |= VacuumEntityFeature.CLEAN_SPOT
         self._attr_supported_features |= VacuumEntityFeature.STATE
         self._attr_supported_features |= VacuumEntityFeature.START
 
@@ -76,6 +75,12 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
     def state(self) -> str | None:
         mb_state = self._moebot.state
         return _STATUS_TO_HA[mb_state]
+
+    @property
+    def status(self) -> str | None:
+        _log.warning("This is a status")
+        """Return the status of the vacuum cleaner."""
+        return "I am a status :|"
 
     @property
     def battery_icon(self) -> str:
@@ -92,38 +97,18 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
 
     def start(self) -> None:
         """Start or resume the cleaning task."""
-        raise NotImplementedError()
+        self._moebot.start()
 
     def pause(self) -> None:
         """Pause the cleaning task."""
-        raise NotImplementedError()
+        self._moebot.pause()
 
     def stop(self, **kwargs: Any) -> None:
-        raise NotImplementedError()
+        self._moebot.cancel()
 
     def return_to_base(self, **kwargs: Any) -> None:
-        raise NotImplementedError()
+        self._moebot.dock()
 
     def clean_spot(self, **kwargs: Any) -> None:
-        raise NotImplementedError()
+        self._moebot.start(spiral=True)
 
-    def locate(self, **kwargs: Any) -> None:
-        raise NotImplementedError()
-
-    def set_fan_speed(self, fan_speed: str, **kwargs: Any) -> None:
-        raise NotImplementedError()
-
-    def send_command(self, command: str, params: dict | list | None = None, **kwargs: Any) -> None:
-        raise NotImplementedError()
-
-    async def async_turn_on(self, **kwargs: Any) -> None:
-        """Not supported."""
-        raise NotImplementedError()
-
-    async def async_turn_off(self, **kwargs: Any) -> None:
-        """Not supported."""
-        raise NotImplementedError()
-
-    async def async_toggle(self, **kwargs: Any) -> None:
-        """Not supported."""
-        raise NotImplementedError()

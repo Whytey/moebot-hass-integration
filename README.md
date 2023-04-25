@@ -2,8 +2,8 @@
 
 Provides the following:
 
-- Presents a Vacuum component for control of your MoeBot (actual control not yet implemented).
-- Further controls to manage whether the MoeBot continues to mow during rain
+- Presents a Vacuum component for control of your MoeBot.
+- Further controls to manage whether the MoeBot continues to mow during rain and how long to mow for.
 - Sensors to monitor the working state, errors and battery level of the MoeBot
 
 <img src="https://raw.githubusercontent.com/WhyTey/pymoebot-hass-integration/master/images/device-settings.png">
