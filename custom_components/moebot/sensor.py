@@ -16,7 +16,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Add sensors for passed config_entry in HA."""
     moebot = hass.data[DOMAIN][config_entry.entry_id]
 
-    async_add_entities([MowingStateSensor(moebot), BatterySensor(moebot)])
+    async_add_entities(
+        [MowingStateSensor(moebot), BatterySensor(moebot), EmergencyStateSensor(moebot), WorkModeSensor(moebot)])
 
 
 class SensorBase(BaseMoeBotEntity, SensorEntity):
@@ -43,6 +44,46 @@ class MowingStateSensor(SensorBase):
     def state(self):
         """Return the state of the sensor."""
         return self._moebot.state
+
+
+class EmergencyStateSensor(SensorBase):
+    def __init__(self, moebot):
+        super().__init__(moebot)
+
+        # A unique_id for this entity within this domain.
+        # Note: This is NOT used to generate the user visible Entity ID used in automations.
+        self._attr_unique_id = f"{self._moebot.id}_emergency_state"
+
+        # The name of the entity
+        self._attr_name = f"Emergency State"
+
+        self._state = "UNKNOWN"
+
+    # The value of this sensor.
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._moebot.emergency_state
+
+
+class WorkModeSensor(SensorBase):
+    def __init__(self, moebot):
+        super().__init__(moebot)
+
+        # A unique_id for this entity within this domain.
+        # Note: This is NOT used to generate the user visible Entity ID used in automations.
+        self._attr_unique_id = f"{self._moebot.id}_work_mode"
+
+        # The name of the entity
+        self._attr_name = f"Work Mode"
+
+        self._state = "UNKNOWN"
+
+    # The value of this sensor.
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._moebot.work_mode
 
 
 class BatterySensor(SensorBase):
