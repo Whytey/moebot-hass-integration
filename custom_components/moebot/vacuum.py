@@ -59,7 +59,8 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._moebot.id)},
             manufacturer="MoeBot",
-            name=f"{self.name} ({self._moebot.id})"
+            name=f"{self.name} ({self._moebot.id})",
+            hw_version=self._moebot.tuya_version
         )
 
         self._attr_supported_features = 0
