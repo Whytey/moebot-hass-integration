@@ -6,7 +6,7 @@
   "issue_tracker": "https://github.com/Whytey/moebot-hass-integration/issues",
   "config_flow": true,
   "requirements": [
-    "git+https://github.com/WhyTey/pymoebot.git@0.1.0#pymoebot==0.0.1"
+    "git+https://github.com/WhyTey/pymoebot.git@main#pymoebot==0.2.0"
   ],
   "ssdp": [],
   "zeroconf": [],
