@@ -11,7 +11,7 @@ from pymoebot import MoeBot
 
 from .const import DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.VACUUM, Platform.SENSOR, Platform.NUMBER, Platform.SWITCH]
+PLATFORMS: list[Platform] = [Platform.VACUUM, Platform.SENSOR, Platform.NUMBER, Platform.SWITCH, Platform.BUTTON]
 _log = logging.getLogger(__package__)
 
 
