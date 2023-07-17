@@ -5,6 +5,7 @@ from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
     PERCENTAGE,
 )
+from homeassistant.helpers.entity import EntityCategory
 
 from . import BaseMoeBotEntity
 from .const import DOMAIN
@@ -76,6 +77,7 @@ class WorkModeSensor(SensorBase):
 
         # The name of the entity
         self._attr_name = f"Work Mode"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
         self._state = "UNKNOWN"
 

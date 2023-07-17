@@ -70,4 +70,4 @@ class BaseMoeBotEntity(Entity):
 
     @property
     def available(self) -> bool:
-        return self._moebot.state is not None
+        return self._moebot.online
