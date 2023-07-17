@@ -18,7 +18,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     moebot = hass.data[DOMAIN][config_entry.entry_id]
 
     async_add_entities(
-        [MowingStateSensor(moebot), BatterySensor(moebot), EmergencyStateSensor(moebot), WorkModeSensor(moebot)])
+        [MowingStateSensor(moebot), BatterySensor(moebot), EmergencyStateSensor(moebot), WorkModeSensor(moebot),
+         PyMoebotVersionSensor(moebot), TuyaVersionSensor(moebot)])
 
 
 class SensorBase(BaseMoeBotEntity, SensorEntity):
@@ -77,7 +78,6 @@ class WorkModeSensor(SensorBase):
 
         # The name of the entity
         self._attr_name = f"Work Mode"
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
         self._state = "UNKNOWN"
 
@@ -110,3 +110,42 @@ class BatterySensor(SensorBase):
     def state(self) -> int:
         """Return the state of the sensor."""
         return int(self._moebot.battery)
+
+
+class PyMoebotVersionSensor(SensorBase):
+    def __init__(self, moebot):
+        super().__init__(moebot)
+
+        # A unique_id for this entity within this domain.
+        # Note: This is NOT used to generate the user visible Entity ID used in automations.
+        self._attr_unique_id = f"{self._moebot.id}_pymoebot_version"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+        # The name of the entity
+        self._attr_name = f"Pymoebot Version"
+
+    # The value of this sensor.
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._moebot.pymoebot_version
+
+
+class TuyaVersionSensor(SensorBase):
+    def __init__(self, moebot):
+        super().__init__(moebot)
+
+        # A unique_id for this entity within this domain.
+        # Note: This is NOT used to generate the user visible Entity ID used in automations.
+        self._attr_unique_id = f"{self._moebot.id}_tuya_version"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+        # The name of the entity
+        self._attr_name = f"Tuya Protocol Version"
+
+    # The value of this sensor.
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._moebot.tuya_version
+
