@@ -54,6 +54,8 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
 
         self._attr_name = f"MoeBot"
 
+        self.__attr_icon = "mdi:robot-mower"
+
         # The vacuum Entity is actually the Device for the MoeBot integration. Therefore, we can provide the
         # other supporting metadata about the Device.
         self._attr_device_info = DeviceInfo(

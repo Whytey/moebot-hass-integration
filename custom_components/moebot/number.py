@@ -1,6 +1,7 @@
 import logging
 
 from homeassistant.components.number import NumberEntity, NumberMode
+from homeassistant.helpers.entity import EntityCategory
 
 from . import BaseMoeBotEntity
 from .const import DOMAIN
@@ -23,6 +24,7 @@ class WorkingTimeNumber(BaseMoeBotEntity, NumberEntity):
         # A unique_id for this entity within this domain.
         # Note: This is NOT used to generate the user visible Entity ID used in automations.
         self._attr_unique_id = f"{self._moebot.id}_mow_time_hrs"
+        self._attr_entity_category = EntityCategory.CONFIG
 
         self._attr_name = f"Mowing Time"
 
