@@ -70,7 +70,6 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
         self._attr_supported_features |= VacuumEntityFeature.STOP
         self._attr_supported_features |= VacuumEntityFeature.RETURN_HOME
         self._attr_supported_features |= VacuumEntityFeature.BATTERY
-        self._attr_supported_features |= VacuumEntityFeature.STATUS
         self._attr_supported_features |= VacuumEntityFeature.STATE
         self._attr_supported_features |= VacuumEntityFeature.START
 
@@ -78,12 +77,6 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
     def state(self) -> str | None:
         mb_state = self._moebot.state
         return _STATUS_TO_HA[mb_state]
-
-    @property
-    def status(self) -> str | None:
-        _log.warning("This is a status")
-        """Return the status of the vacuum cleaner."""
-        return "I am a status :|"
 
     @property
     def battery_icon(self) -> str:
@@ -114,4 +107,3 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
 
     def clean_spot(self, **kwargs: Any) -> None:
         self._moebot.start(spiral=True)
-

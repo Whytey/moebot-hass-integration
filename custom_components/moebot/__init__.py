@@ -64,7 +64,8 @@ class BaseMoeBotEntity(Entity):
         # (rather than in the __init__)
         def listener(raw_msg):
             _log.debug("%r got an update: %r" % (self.__class__.__name__, raw_msg))
-            self.async_write_ha_state()
+            # self.async_write_ha_state()
+            self.schedule_update_ha_state()
 
         self._moebot.add_listener(listener)
 
