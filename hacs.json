@@ -1,6 +1,6 @@
 {
   "hacs": "1.6.0",
   "name": "MoeBot",
-  "homeassistant": "2022.4.5",
+  "homeassistant": "2023.9.0",
   "render_readme": true
 }
