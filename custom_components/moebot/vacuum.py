@@ -8,7 +8,6 @@ from homeassistant.components.vacuum import StateVacuumEntity, STATE_DOCKED, Sta
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_IDLE
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.icon import icon_for_battery_level
 from pymoebot import MoeBot
@@ -55,15 +54,6 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
         self._attr_name = f"MoeBot"
 
         self.__attr_icon = "mdi:robot-mower"
-
-        # The vacuum Entity is actually the Device for the MoeBot integration. Therefore, we can provide the
-        # other supporting metadata about the Device.
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, self._moebot.id)},
-            manufacturer="MoeBot",
-            name=f"{self.name} ({self._moebot.id})",
-            hw_version=self._moebot.tuya_version
-        )
 
         self._attr_supported_features = 0
         self._attr_supported_features |= VacuumEntityFeature.PAUSE

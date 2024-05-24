@@ -11,13 +11,15 @@ from pymoebot import MoeBot
 
 from .const import DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.VACUUM, Platform.SENSOR, Platform.NUMBER, Platform.SWITCH, Platform.BUTTON]
+PLATFORMS: list[Platform] = [Platform.VACUUM, Platform.SENSOR, Platform.NUMBER, Platform.SWITCH, Platform.BUTTON,
+                             Platform.LAWN_MOWER]
 _log = logging.getLogger(__package__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up MoeBot from a config entry."""
-    moebot = await hass.async_add_executor_job(MoeBot, entry.data["device_id"], entry.data["ip_address"], entry.data["local_key"])
+    moebot = await hass.async_add_executor_job(MoeBot, entry.data["device_id"], entry.data["ip_address"],
+                                               entry.data["local_key"])
     _log.info("Created a moebot: %r" % moebot)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = moebot
     await hass.async_add_executor_job(moebot.listen)
