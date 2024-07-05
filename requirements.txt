@@ -1,1 +1,5 @@
 homeassistant>=2023.9
+graphviz==0.20.3
+pydot==2.0.0
+transitions==0.9.1
+networkx==3.3
