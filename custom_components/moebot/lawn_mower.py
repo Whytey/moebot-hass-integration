@@ -53,11 +53,26 @@ class MoeBotStateMachine(GraphMachine):
         _log.info(f"PyDot: {pydot.__version__}")
 
         self._moebot: MoeBot = moebot
-        self.add_transition('StartMowing', 'STANDBY', 'MOWING', before=self._moebot.start)
-        self.add_transition('PauseWork', 'MOWING', 'PAUSED', before=self._moebot.pause)
-        self.add_transition('ContinueWork', 'PAUSED', 'MOWING', before=self._moebot.start)
-        self.add_transition('CancelWork', 'PAUSED', 'STANDBY', before=self._moebot.cancel)
-        self.add_transition('StartReturnStation', 'STANDBY', 'PARK', before=self._moebot.dock)
+
+        # This call back ensures that the state of the state machine is kept in sync with the state of the
+        # MoeBot.
+        def __state_listener(raw_msg):
+            _log.debug("%r got an update: %r" % (self.__class__.__name__, raw_msg))
+            self.state = self._moebot.state
+
+        self._moebot.add_listener(__state_listener)
+        self.add_transition('StartMowing', 'CHARGING', 'MOWING',
+                            before=self._moebot.start)
+        self.add_transition('StartMowing', 'STANDBY', 'MOWING',
+                            before=self._moebot.start)
+        self.add_transition('PauseWork', 'MOWING', 'PAUSED',
+                            before=self._moebot.pause)
+        self.add_transition('ContinueWork', 'PAUSED', 'MOWING',
+                            before=self._moebot.start)
+        self.add_transition('CancelWork', 'PAUSED', 'STANDBY',
+                            before=self._moebot.cancel)
+        self.add_transition('StartReturnStation', 'STANDBY', 'PARK',
+                            before=self._moebot.dock)
         self.add_transition('Error', '*', 'ERROR')
         self.add_transition('Emergency', '*', 'EMERGENCY')
         self.add_transition('Locked', '*', 'LOCKED')
@@ -103,22 +118,6 @@ class MoeBotMowerEntity(BaseMoeBotEntity, LawnMowerEntity):
         )
 
         self._sm: MoeBotStateMachine = MoeBotStateMachine(self._moebot)
-
-    async def async_added_to_hass(self) -> None:
-        """Run when this Entity has been added to HA."""
-
-        # The call back registration is done once this entity is registered with HA
-        # (rather than in the __init__)
-        #
-        # This is a custom listener for the lawn_mower specialisation so that we can ensure the state-machine remains
-        # in-sync with the MoeBot.
-        def listener(raw_msg):
-            _log.debug("%r got an update: %r" % (self.__class__.__name__, raw_msg))
-            # Something has changed in MoeBot.  Force our state-machine state to align to the MoeBot state.
-            self._sm.state = self._moebot.state
-            self.schedule_update_ha_state()
-
-        self._moebot.add_listener(listener)
 
     @property
     def activity(self) -> LawnMowerActivity | None:
