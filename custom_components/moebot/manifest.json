@@ -2,11 +2,15 @@
   "domain": "moebot",
   "name": "MoeBot",
   "documentation": "https://github.com/Whytey/moebot-hass-integration",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "issue_tracker": "https://github.com/Whytey/moebot-hass-integration/issues",
   "config_flow": true,
   "requirements": [
-    "pymoebot==0.2.3"
+    "pymoebot==0.3.1",
+    "graphviz==0.20.3",
+    "pydot==2.0.0",
+    "transitions==0.9.1",
+    "networkx==3.3"
   ],
   "ssdp": [],
   "zeroconf": [],

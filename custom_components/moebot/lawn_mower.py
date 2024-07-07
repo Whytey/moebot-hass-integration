@@ -1,3 +1,9 @@
+import logging
+from builtins import super
+
+import graphviz
+import networkx as nx
+import pydot
 from homeassistant.components.lawn_mower import LawnMowerEntity, LawnMowerEntityEntityDescription, \
     LawnMowerEntityFeature, LawnMowerActivity
 from homeassistant.config_entries import ConfigEntry
@@ -5,6 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from pymoebot import MoeBot
+from transitions.extensions import GraphMachine
 
 from custom_components.moebot import BaseMoeBotEntity
 from .const import DOMAIN
@@ -22,6 +29,8 @@ _STATUS_TO_HA = {
     "ERROR": LawnMowerActivity.ERROR,
 }
 
+_log = logging.getLogger(__package__)
+
 
 async def async_setup_entry(hass: HomeAssistant,
                             entry: ConfigEntry,
@@ -31,6 +40,55 @@ async def async_setup_entry(hass: HomeAssistant,
 
     moebot_entity = MoeBotMowerEntity(moebot)
     async_add_entities([moebot_entity])
+
+
+class MoeBotStateMachine(GraphMachine):
+    states = ['STANDBY', 'MOWING', 'FIXED_MOWING', 'PAUSED', 'PARK', 'CHARGING', 'CHARGING_WITH_TASK_SUSPEND', 'LOCKED',
+              'EMERGENCY', 'ERROR']
+
+    def __init__(self, moebot: MoeBot):
+        super().__init__(self, states=self.states, use_pygraphviz=False,
+                         initial="STANDBY", auto_transitions=False)
+        _log.info(f"Graphviz: {graphviz.__version__}")
+        _log.info(f"PyDot: {pydot.__version__}")
+
+        self._moebot: MoeBot = moebot
+
+        # This call back ensures that the state of the state machine is kept in sync with the state of the
+        # MoeBot.
+        def __state_listener(raw_msg):
+            _log.debug("%r got an update: %r" % (self.__class__.__name__, raw_msg))
+            self.state = self._moebot.state
+
+        self._moebot.add_listener(__state_listener)
+        self.add_transition('StartMowing', 'CHARGING', 'MOWING',
+                            before=self._moebot.start)
+        self.add_transition('StartMowing', 'STANDBY', 'MOWING',
+                            before=self._moebot.start)
+        self.add_transition('PauseWork', 'MOWING', 'PAUSED',
+                            before=self._moebot.pause)
+        self.add_transition('ContinueWork', 'PAUSED', 'MOWING',
+                            before=self._moebot.start)
+        self.add_transition('CancelWork', 'PAUSED', 'STANDBY',
+                            before=self._moebot.cancel)
+        self.add_transition('StartReturnStation', 'STANDBY', 'PARK',
+                            before=self._moebot.dock)
+        self.add_transition('Error', '*', 'ERROR')
+        self.add_transition('Emergency', '*', 'EMERGENCY')
+        self.add_transition('Locked', '*', 'LOCKED')
+
+    def shortest_path(self, target):
+        # With thanks for support from @aleneum per https://github.com/pytransitions/transitions/discussions/679
+        graph = nx.drawing.nx_pydot.from_pydot(
+            pydot.graph_from_dot_data(self.get_graph().source)[0]
+        )
+        path = nx.shortest_path(graph, self.state, target)
+        # the pydot graph seems to be slightly different organized and returns a list of edges.
+        for trigger in (
+                graph[u][v][0].get("label") for u, v in nx.utils.pairwise(path)
+        ):
+            _log.debug(f"Executing {trigger}...")
+            self.trigger(trigger)
 
 
 class MoeBotMowerEntity(BaseMoeBotEntity, LawnMowerEntity):
@@ -57,8 +115,9 @@ class MoeBotMowerEntity(BaseMoeBotEntity, LawnMowerEntity):
             identifiers={(DOMAIN, self._moebot.id)},
             manufacturer="MoeBot",
             name=f"{self.name} ({self._moebot.id})",
-            sw_version=self._moebot.tuya_version
         )
+
+        self._sm: MoeBotStateMachine = MoeBotStateMachine(self._moebot)
 
     @property
     def activity(self) -> LawnMowerActivity | None:
@@ -67,10 +126,10 @@ class MoeBotMowerEntity(BaseMoeBotEntity, LawnMowerEntity):
         return _STATUS_TO_HA[mb_state]
 
     def start_mowing(self) -> None:
-        self._moebot.start()
+        self._sm.shortest_path('MOWING')
 
     def dock(self) -> None:
-        self._moebot.dock()
+        self._sm.shortest_path('PARK')
 
     def pause(self) -> None:
-        self._moebot.pause()
+        self._sm.shortest_path('PAUSED')
