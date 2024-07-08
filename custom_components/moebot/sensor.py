@@ -122,7 +122,7 @@ class PyMoebotVersionSensor(SensorBase):
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
         # The name of the entity
-        self._attr_name = f"Pymoebot Version"
+        self._attr_name = f"pymoebot Version"
 
     # The value of this sensor.
     @property
