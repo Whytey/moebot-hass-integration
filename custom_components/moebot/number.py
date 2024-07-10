@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass
 from enum import Enum
 
 from homeassistant.components.number import NumberEntity, NumberMode, NumberDeviceClass
@@ -15,9 +16,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Add sensors for passed config_entry in HA."""
     moebot = hass.data[DOMAIN][config_entry.entry_id]
 
-    async_add_entities(
-        [WorkingTimeNumber(moebot), Zone1RatioNumber(moebot), Zone1DistanceNumber(moebot), Zone2RatioNumber(moebot),
-         Zone2DistanceNumber(moebot)])
+    entities = [WorkingTimeNumber(moebot)]
+    for zone in range(1, 6):
+        for part in ZoneNumberType:
+            entities.append(ZoneConfigNumber(moebot, zone, part))
+
+    async_add_entities(entities)
 
 
 class WorkingTimeNumber(BaseMoeBotEntity, NumberEntity):
@@ -47,107 +51,57 @@ class WorkingTimeNumber(BaseMoeBotEntity, NumberEntity):
         self._moebot.mow_time = int(value)
 
 
-class ZoneNumberType(Enum):
-    RATIO = 'Ratio'
-    DISTANCE = 'Distance'
+@dataclass
+class ZoneTypeDataMixin:
+    type_name: str
+    position: int
 
 
-class AbstractZoneNumber(BaseMoeBotEntity, NumberEntity):
+class ZoneNumberType(ZoneTypeDataMixin, Enum):
+    DISTANCE = 'Distance', 0
+    RATIO = 'Ratio', 1
+
+
+class ZoneConfigNumber(BaseMoeBotEntity, NumberEntity):
     def __init__(self, moebot: MoeBot, zone: int, part: ZoneNumberType):
         super().__init__(moebot)
+        self.zone = zone
+        self.part = part
 
         # A unique_id for this entity within this domain.
         # Note: This is NOT used to generate the user visible Entity ID used in automations.
-        self._attr_unique_id = f"{self._moebot.id}_zone{zone}_{part.value.lower()}"
+        self._attr_unique_id = f"{self._moebot.id}_zone{self.zone}_{self.part.value.type_name.lower()}"
         self._attr_entity_category = EntityCategory.CONFIG
 
-        self._attr_name = f"Zone {zone} {part.value}"
+        self._attr_name = f"Zone {self.zone} {self.part.value.type_name}"
 
         self._attr_native_min_value = 0
-        self._attr_native_max_value = 100 if part == ZoneNumberType.RATIO else 200
+        self._attr_native_max_value = 100 if self.part == ZoneNumberType.RATIO else 200
         self._attr_native_step = 1
         self._attr_mode = NumberMode.BOX
-        self._number_option_unit_of_measurement = "%" if part == ZoneNumberType.RATIO else "m"
-        self._attr_device_class = NumberDeviceClass.DISTANCE if part == ZoneNumberType.DISTANCE else None
+        self._number_option_unit_of_measurement = "%" if self.part == ZoneNumberType.RATIO else "m"
+        self._attr_device_class = NumberDeviceClass.DISTANCE if self.part == ZoneNumberType.DISTANCE else None
 
         self._attr_entity_registry_enabled_default = False
 
-
-class Zone1RatioNumber(AbstractZoneNumber):
-
-    def __init__(self, moebot):
-        super().__init__(moebot, 1, ZoneNumberType.RATIO)
-
-    @property
-    def native_value(self) -> float:
-        distance, ratio = self._moebot.zones.zone1
-        return ratio
-
-    def set_native_value(self, value: float) -> None:
-        zc = ZoneConfig(int(self._moebot.zones.zone1[0]), int(value),
-                        int(self._moebot.zones.zone2[0]), int(self._moebot.zones.zone2[1]),
-                        int(self._moebot.zones.zone3[0]), int(self._moebot.zones.zone3[1]),
-                        int(self._moebot.zones.zone4[0]), int(self._moebot.zones.zone4[1]),
-                        int(self._moebot.zones.zone5[0]), int(self._moebot.zones.zone5[1]),
-                        )
-        self._moebot.zones = zc
-
-
-class Zone1DistanceNumber(AbstractZoneNumber):
-
-    def __init__(self, moebot):
-        super().__init__(moebot, 1, ZoneNumberType.DISTANCE)
+    @classmethod
+    def zone_config_to_list(cls, zc: ZoneConfig):
+        return [int(zc.zone1[0]), int(zc.zone1[1]),
+                int(zc.zone2[0]), int(zc.zone2[1]),
+                int(zc.zone3[0]), int(zc.zone3[1]),
+                int(zc.zone4[0]), int(zc.zone4[1]),
+                int(zc.zone5[0]), int(zc.zone5[1]),
+                ]
 
     @property
     def native_value(self) -> float:
-        distance, ratio = self._moebot.zones.zone1
-        return distance
+        zone_values = ZoneConfigNumber.zone_config_to_list(self._moebot.zones)
+
+        return zone_values[(2 * (self.zone - 1)) + self.part.value.position]
 
     def set_native_value(self, value: float) -> None:
-        zc = ZoneConfig(int(value), int(self._moebot.zones.zone1[1]),
-                        int(self._moebot.zones.zone2[0]), int(self._moebot.zones.zone2[1]),
-                        int(self._moebot.zones.zone3[0]), int(self._moebot.zones.zone3[1]),
-                        int(self._moebot.zones.zone4[0]), int(self._moebot.zones.zone4[1]),
-                        int(self._moebot.zones.zone5[0]), int(self._moebot.zones.zone5[1]),
-                        )
-        self._moebot.zones = zc
+        new_zone_values = ZoneConfigNumber.zone_config_to_list(self._moebot.zones)
+        new_zone_values[(2 * (self.zone - 1)) + self.part.value.position] = int(value)
 
-
-class Zone2RatioNumber(AbstractZoneNumber):
-
-    def __init__(self, moebot):
-        super().__init__(moebot, 2, ZoneNumberType.RATIO)
-
-    @property
-    def native_value(self) -> float:
-        distance, ratio = self._moebot.zones.zone2
-        return ratio
-
-    def set_native_value(self, value: float) -> None:
-        zc = ZoneConfig(int(self._moebot.zones.zone1[0]), int(self._moebot.zones.zone1[1]),
-                        int(self._moebot.zones.zone2[0]), int(value),
-                        int(self._moebot.zones.zone3[0]), int(self._moebot.zones.zone3[1]),
-                        int(self._moebot.zones.zone4[0]), int(self._moebot.zones.zone4[1]),
-                        int(self._moebot.zones.zone5[0]), int(self._moebot.zones.zone5[1]),
-                        )
-        self._moebot.zones = zc
-
-
-class Zone2DistanceNumber(AbstractZoneNumber):
-
-    def __init__(self, moebot):
-        super().__init__(moebot, 2, ZoneNumberType.DISTANCE)
-
-    @property
-    def native_value(self) -> float:
-        distance, ratio = self._moebot.zones.zone2
-        return distance
-
-    def set_native_value(self, value: float) -> None:
-        zc = ZoneConfig(int(self._moebot.zones.zone1[0]), int(self._moebot.zones.zone1[1]),
-                        int(value), int(self._moebot.zones.zone2[1]),
-                        int(self._moebot.zones.zone3[0]), int(self._moebot.zones.zone3[1]),
-                        int(self._moebot.zones.zone4[0]), int(self._moebot.zones.zone4[1]),
-                        int(self._moebot.zones.zone5[0]), int(self._moebot.zones.zone5[1]),
-                        )
+        zc = ZoneConfig(*new_zone_values)
         self._moebot.zones = zc
