@@ -30,6 +30,7 @@ class ParkWhenRainingSwitch(BaseMoeBotEntity, SwitchEntity):
 
         self._attr_name = f"Park If Raining"
 
+    @property
     def is_on(self) -> bool:
         return self._moebot.mow_in_rain
 
