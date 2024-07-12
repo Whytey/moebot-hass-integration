@@ -31,7 +31,7 @@ Once you have installed the integration (per above)...
 1. Enter the required details; Device ID, IP address and [Local Key](https://github.com/make-all/tuya-local?tab=readme-ov-file#finding-your-device-id-and-local-key)
 1. Click on "Submit" to complete the integration setup.
 
-<img src="https://raw.githubusercontent.com/WhyTey/pymoebot-hass-integration/master/images/add-device-config.png">
+<img src="https://raw.githubusercontent.com/WhyTey/pymoebot-hass-integration/master/images/add-device-config1.png">
 
 ## Documentation
 
