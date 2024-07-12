@@ -1,8 +1,7 @@
 import logging
 
-from homeassistant.components.sensor import SensorEntity, SensorStateClass
+from homeassistant.components.sensor import SensorEntity, SensorStateClass, SensorDeviceClass
 from homeassistant.const import (
-    DEVICE_CLASS_BATTERY,
     PERCENTAGE,
 )
 from homeassistant.helpers.entity import EntityCategory
@@ -100,11 +99,11 @@ class BatterySensor(SensorBase):
         # The name of the entity
         self._attr_name = f"Battery Level"
 
-        self._attr_device_class = DEVICE_CLASS_BATTERY
+        self._attr_device_class = SensorDeviceClass.BATTERY
         self._attr_unit_of_measurement = PERCENTAGE
         self._attr_state_class = SensorStateClass.MEASUREMENT
 
-    # The value of this sensor. As this is a DEVICE_CLASS_BATTERY, this value must be
+    # The value of this sensor. As this is a SensorDeviceClass.BATTERY, this value must be
     # the battery level as a percentage (between 0 and 100)
     @property
     def state(self) -> int:
@@ -148,4 +147,3 @@ class TuyaVersionSensor(SensorBase):
     def state(self):
         """Return the state of the sensor."""
         return self._moebot.tuya_version
-
