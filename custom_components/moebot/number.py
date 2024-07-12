@@ -95,6 +95,10 @@ class ZoneConfigNumber(BaseMoeBotEntity, NumberEntity):
 
     @property
     def native_value(self) -> float:
+        if not self._moebot.zones:
+            _log.debug("Zone data hasn't been retrieved, can't provide values")
+            return
+
         zone_values = ZoneConfigNumber.zone_config_to_list(self._moebot.zones)
 
         return zone_values[(2 * (self.zone - 1)) + self.part.value.position]
