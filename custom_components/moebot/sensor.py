@@ -2,8 +2,7 @@ import logging
 
 from homeassistant.components.sensor import SensorEntity, SensorStateClass, SensorDeviceClass
 from homeassistant.const import (
-    PERCENTAGE,
-)
+    PERCENTAGE, )
 from homeassistant.helpers.entity import EntityCategory
 
 from . import BaseMoeBotEntity
