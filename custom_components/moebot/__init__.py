@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, EVENT_HOMEASSISTANT_STOP
@@ -58,6 +59,12 @@ class BaseMoeBotEntity(Entity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._moebot.id)}
         )
+
+    @property
+    def extra_state_attributes(self):
+        if self._moebot.last_update is not None:
+            return {"last_message_received": datetime.fromtimestamp(self._moebot.last_update)}
+        return None
 
     async def async_added_to_hass(self) -> None:
         """Run when this Entity has been added to HA."""

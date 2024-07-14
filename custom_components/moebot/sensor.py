@@ -1,10 +1,8 @@
 import logging
-from datetime import datetime
 
 from homeassistant.components.sensor import SensorEntity, SensorStateClass, SensorDeviceClass
 from homeassistant.const import (
-    PERCENTAGE,
-)
+    PERCENTAGE, )
 from homeassistant.helpers.entity import EntityCategory
 
 from . import BaseMoeBotEntity
@@ -19,7 +17,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     async_add_entities(
         [MowingStateSensor(moebot), BatterySensor(moebot), EmergencyStateSensor(moebot), WorkModeSensor(moebot),
-         PyMoebotVersionSensor(moebot), TuyaVersionSensor(moebot), LastUpdateTimeSensor(moebot)])
+         PyMoebotVersionSensor(moebot), TuyaVersionSensor(moebot)])
 
 
 class SensorBase(BaseMoeBotEntity, SensorEntity):
@@ -148,23 +146,3 @@ class TuyaVersionSensor(SensorBase):
     def state(self):
         """Return the state of the sensor."""
         return self._moebot.tuya_version
-
-
-class LastUpdateTimeSensor(SensorBase):
-    def __init__(self, moebot):
-        super().__init__(moebot)
-
-        # A unique_id for this entity within this domain.
-        # Note: This is NOT used to generate the user visible Entity ID used in automations.
-        self._attr_unique_id = f"{self._moebot.id}_last_update_time"
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC
-        self._attr_device_class = SensorDeviceClass.TIMESTAMP
-
-        # The name of the entity
-        self._attr_name = f"Last Update"
-
-    # The value of this sensor.
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return datetime.fromtimestamp(self._moebot.last_update)
