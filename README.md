@@ -35,6 +35,34 @@ Once you have installed the integration (per above)...
 
 ## Documentation
 
+### Lawn Mower States
+
+The [Lawn Mower](https://www.home-assistant.io/integrations/lawn_mower/) component as provided by Home Assistant only provides [3 states](https://github.com/home-assistant/core/blob/c8a6c6a5c17f8633653fc0eaabcf00b727772335/homeassistant/components/lawn_mower/const.py#L6):
+1. `ERROR` - Device is in error state, needs assistance.
+2. `PAUSED` - Paused during activity.
+3. `MOWING` - Device is mowing.
+4. `DOCKED` - Device is docked.
+
+The MoeBot however provides many more states:
+1. `STANDBY` - the MoeBot is not mowing; it is either sitting idle in the mowing area or sitting in the dock fully charged.
+2. `MOWING` - the MoeBot is mowing.
+3. `FIXED_MOWING` - the MoeBot is mowing in a spiral pattern.
+4. `CHARGING` - the MoeBot is in the dock charging.
+5. `EMERGENCY` - the MoeBot is in some non-normal state, perhaps lifted off the ground.
+6. `LOCKED` - the MoeBot UI is asking for the PIN to be entered.
+7. `PAUSED` - the MoeBot is currently mowing but the job has been paused.
+8. `PARK` - the MoeBot is following the boundary wire to return to the dock.
+9. `CHARGING_WITH_TASK_SUSPEND` - the MoeBot is in the dock charging but will return to mow.
+10. `ERROR` - the MoeBot is in some error state, perhaps it is outside of the boundary.
+
+The MoeBot integration maps these states per the following table:
+| Lawn Mower State | MoeBot States |
+|---|---|
+| ERROR | EMERGENCY, ERROR, LOCKED |
+| PAUSED | PAUSED |
+| MOWING | MOWING, FIXED_MOWING, PARK |
+| DOCKED | STANDBY, CHARGING, CHARGING_WITH_TASK_SUSPEND |
+
 Additional documentation is provided in the `pymoebot` [repository](https://github.com/Whytey/pymoebot).
 
 ## Future
