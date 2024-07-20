@@ -45,7 +45,6 @@ Feel free to continue to log any issues you have an if possible, I may try and a
 
 The following are a list of features I would like to have added if I continued with the MoeBot:
 
-- Ability to reconfigure the settings using `ConfigFlow`.
 - Improve the current `ConfigFlow` for adding a MoeBot device; maybe attempt discovery or at least use the abilities of `tinytuya` to identify the Local Key. 
 - Provide additional sensors to show Tx/Rx message counts to the mower, including error counters (this would require an accompanying update to the pymoebot library).
 - Investigate the benefit of moving to a single coordinator for this integration, per the newer integration development guides.
