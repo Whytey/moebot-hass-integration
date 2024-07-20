@@ -2,25 +2,27 @@
 from __future__ import annotations
 
 import logging
+from functools import partial
 from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from pymoebot import MoeBot
 
-from .const import DOMAIN
+from .const import DOMAIN, DEVICE_ID, IP_ADDRESS, LOCAL_KEY
 
 _LOGGER = logging.getLogger(__name__)
 
 # TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required("device_id"): str,
-        vol.Required("ip_address"): str,
-        vol.Required("local_key"): str,
+        vol.Required(DEVICE_ID): str,
+        vol.Required(IP_ADDRESS): str,
+        vol.Required(LOCAL_KEY): str,
     }
 )
 
@@ -32,8 +34,12 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     """
 
     try:
-        d = MoeBot(data["device_id"], data["ip_address"], data["local_key"])
-    except:
+        d = await hass.async_add_executor_job(partial(MoeBot,
+                                                      device_id=data["device_id"],
+                                                      device_ip=data["ip_address"],
+                                                      local_key=data["local_key"]))
+    except Exception as e:
+        _LOGGER.error("Caught an exception when trying to create a MoeBot device.", e)
         raise CannotConnect
 
     # Return info that you want to store in the config entry.
@@ -72,6 +78,45 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )
+
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
+        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+        assert entry
+        print("entry: {}".format(entry))
+
+        if user_input is not None:
+            errors = {}
+
+            try:
+                info = await validate_input(self.hass, user_input)
+
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else:
+
+                assert isinstance(entry, ConfigEntry)
+                self.hass.config_entries.async_update_entry(
+                    entry,
+                    data={
+                        DEVICE_ID: user_input[DEVICE_ID],
+                        IP_ADDRESS: user_input[IP_ADDRESS],
+                        LOCAL_KEY: user_input[LOCAL_KEY],
+                    },
+                )
+                await self.hass.config_entries.async_reload(entry.entry_id)
+                return self.async_abort(reason="reconfigure_successful")
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(DEVICE_ID, default=entry.data.get(DEVICE_ID)): str,
+                    vol.Required(IP_ADDRESS, default=entry.data.get(IP_ADDRESS)): str,
+                    vol.Required(LOCAL_KEY, default=entry.data.get(LOCAL_KEY)): str,
+                }
+            ))
 
 
 class CannotConnect(HomeAssistantError):
