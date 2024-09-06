@@ -23,7 +23,7 @@ _STATUS_TO_HA = {
     "EMERGENCY": LawnMowerActivity.ERROR,
     "LOCKED": LawnMowerActivity.ERROR,
     "PAUSED": LawnMowerActivity.PAUSED,
-    "PARK": LawnMowerActivity.MOWING,
+    "PARK": LawnMowerActivity.RETURNING,
     "CHARGING_WITH_TASK_SUSPEND": LawnMowerActivity.DOCKED,
     "FIXED_MOWING": LawnMowerActivity.MOWING,
     "ERROR": LawnMowerActivity.ERROR,
