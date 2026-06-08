@@ -6,7 +6,6 @@ Provides the following:
 - Further controls to manage whether the MoeBot continues to mow during rain and how long to mow for.
 - Ability to alter the multi-zone configuration of the mower (these entities are disabled by default). 
 - Sensors to monitor the working state, errors and battery level of the MoeBot
-- A [Vacuum](https://www.home-assistant.io/integrations/vacuum/) component is also provided for legacy users, but will be removed in a future update.
 
 <img src="https://raw.githubusercontent.com/WhyTey/pymoebot-hass-integration/master/images/device-settings.png">
 
@@ -67,11 +66,11 @@ Additional documentation is provided in the `pymoebot` [repository](https://gith
 
 ## Future
 
-Unfortunately, 0.3.0 will probably be my last release of this integration since I have now purchased a new Luba 2 5000 and will be decommissioning my MoeBot.  
+Whilst my main mower is now a Luba 2 5000 and my MoeBot has been all but decommissioned, I am still interested in continuing to develop this integration.  
 
-Feel free to continue to log any issues you have an if possible, I may try and address these - though it will be difficult without a physical device to test against.
+Feel free to continue to log any issues you have, and if possible, I will try and address them.
 
-The following are a list of features I would like to have added if I continued with the MoeBot:
+The following is a list of features I would like to add to the MoeBot:
 
 - Improve the current `ConfigFlow` for adding a MoeBot device; maybe attempt discovery or at least use the abilities of `tinytuya` to identify the Local Key. 
 - Provide additional sensors to show Tx/Rx message counts to the mower, including error counters (this would require an accompanying update to the pymoebot library).

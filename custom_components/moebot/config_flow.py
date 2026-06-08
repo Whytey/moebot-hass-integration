@@ -17,7 +17,6 @@ from .const import DOMAIN, DEVICE_ID, IP_ADDRESS, LOCAL_KEY
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(DEVICE_ID): str,
@@ -49,7 +48,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for MoeBot."""
 
-    VERSION = 1
+    VERSION = 2
 
     async def async_step_user(
             self, user_input: dict[str, Any] | None = None
