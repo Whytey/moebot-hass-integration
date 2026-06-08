@@ -7,15 +7,16 @@ from datetime import datetime
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, EVENT_HOMEASSISTANT_STOP
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity import Entity, DeviceInfo
+
 from pymoebot import MoeBot
 
 from .const import DOMAIN
+from .config_flow import ConfigFlow as cf
 
-PLATFORMS: list[Platform] = [Platform.VACUUM, Platform.SENSOR, Platform.NUMBER, Platform.SWITCH, Platform.BUTTON,
-                             Platform.LAWN_MOWER]
+PLATFORMS: list[Platform] = [Platform.LAWN_MOWER, Platform.SENSOR, Platform.NUMBER, Platform.SWITCH, Platform.BUTTON]
 _log = logging.getLogger(__package__)
-
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up MoeBot from a config entry."""
@@ -32,6 +33,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, shutdown_moebot)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    return True
+
+
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate old config entries to remove the deprecated entity entirely."""
+    _log.info("Migrating configuration from version %s", config_entry.version)
+
+    if config_entry.version == 1:
+        ent_reg = er.async_get(hass)
+        existing_entries = er.async_entries_for_config_entry(ent_reg, config_entry.entry_id)
+
+        # Look for the exact unique_id pattern of the removed entity
+        for registry_entry in existing_entries:
+            # Remove the old vacuum entity
+            if registry_entry.unique_id.endswith("_vacuum"):
+                _log.info("Removing deprecated entity registry entry: %s", registry_entry.entity_id)
+                ent_reg.async_remove(registry_entry.entity_id)
+
+
+
+        # Explicitly update the entry version in Home Assistant
+        hass.config_entries.async_update_entry(config_entry, version=cf.VERSION)
+        _log.info("Migration to version %s successful", cf.VERSION)
+
     return True
 
 
