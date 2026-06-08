@@ -3,29 +3,31 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.vacuum import StateVacuumEntity, STATE_DOCKED, StateVacuumEntityDescription, \
-    STATE_CLEANING, STATE_RETURNING, STATE_ERROR, VacuumEntityFeature
+from homeassistant.components.vacuum import (
+    StateVacuumEntity,
+    StateVacuumEntityDescription,
+    VacuumActivity,
+    VacuumEntityFeature,
+)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_IDLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.icon import icon_for_battery_level
 from pymoebot import MoeBot
 
 from . import BaseMoeBotEntity
 from .const import DOMAIN
 
 _STATUS_TO_HA = {
-    "STANDBY": STATE_DOCKED,
-    "MOWING": STATE_CLEANING,
-    "CHARGING": STATE_DOCKED,
-    "EMERGENCY": STATE_ERROR,
-    "LOCKED": STATE_ERROR,
-    "PAUSED": STATE_IDLE,
-    "PARK": STATE_RETURNING,
-    "CHARGING_WITH_TASK_SUSPEND": STATE_DOCKED,
-    "FIXED_MOWING": STATE_CLEANING,
-    "ERROR": STATE_ERROR,
+    "STANDBY": VacuumActivity.DOCKED,
+    "MOWING": VacuumActivity.CLEANING,
+    "CHARGING": VacuumActivity.DOCKED,
+    "EMERGENCY": VacuumActivity.ERROR,
+    "LOCKED": VacuumActivity.ERROR,
+    "PAUSED": VacuumActivity.IDLE,
+    "PARK": VacuumActivity.RETURNING,
+    "CHARGING_WITH_TASK_SUSPEND": VacuumActivity.DOCKED,
+    "FIXED_MOWING": VacuumActivity.CLEANING,
+    "ERROR": VacuumActivity.ERROR,
 }
 
 _log = logging.getLogger(__package__)
@@ -59,27 +61,13 @@ class MoeBotVacuumEntity(BaseMoeBotEntity, StateVacuumEntity):
         self._attr_supported_features |= VacuumEntityFeature.PAUSE
         self._attr_supported_features |= VacuumEntityFeature.STOP
         self._attr_supported_features |= VacuumEntityFeature.RETURN_HOME
-        self._attr_supported_features |= VacuumEntityFeature.BATTERY
         self._attr_supported_features |= VacuumEntityFeature.STATE
         self._attr_supported_features |= VacuumEntityFeature.START
 
     @property
-    def state(self) -> str | None:
+    def activity(self) -> VacuumActivity | None:
         mb_state = self._moebot.state
         return _STATUS_TO_HA[mb_state]
-
-    @property
-    def battery_icon(self) -> str:
-        """Return the battery icon for the vacuum cleaner."""
-        charging = bool(self._moebot.state == "CHARGING" or self._moebot.state == "CHARGING_WITH_TASK_SUSPEND")
-
-        return icon_for_battery_level(
-            battery_level=self.battery_level, charging=charging
-        )
-
-    @property
-    def battery_level(self) -> int | None:
-        return round(self._moebot.battery)
 
     def start(self) -> None:
         """Start or resume the cleaning task."""

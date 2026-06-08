@@ -4,6 +4,7 @@ from homeassistant.components.sensor import SensorEntity, SensorStateClass, Sens
 from homeassistant.const import (
     PERCENTAGE, )
 from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.icon import icon_for_battery_level
 
 from . import BaseMoeBotEntity
 from .const import DOMAIN
@@ -107,7 +108,19 @@ class BatterySensor(SensorBase):
     @property
     def state(self) -> int:
         """Return the state of the sensor."""
-        return int(self._moebot.battery)
+        return round(self._moebot.battery)
+
+    @property
+    def icon(self) -> str:
+        """Return the icon of the sensor."""
+        charging = bool(
+            self._moebot.state == "CHARGING"
+            or self._moebot.state == "CHARGING_WITH_TASK_SUSPEND"
+        )
+
+        return icon_for_battery_level(
+            battery_level=self._moebot.battery, charging=charging
+        )
 
 
 class PyMoebotVersionSensor(SensorBase):

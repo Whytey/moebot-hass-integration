@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from homeassistant.components.number import NumberEntity, NumberMode, NumberDeviceClass
+from homeassistant.const import PERCENTAGE, UnitOfLength, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 from pymoebot import ZoneConfig, MoeBot
 
@@ -41,7 +42,7 @@ class WorkingTimeNumber(BaseMoeBotEntity, NumberEntity):
         self._attr_native_step = 1
         self._attr_mode = NumberMode.SLIDER
         self._attr_device_class = NumberDeviceClass.DURATION
-        self._number_option_unit_of_measurement = "hrs"
+        self._attr_native_unit_of_measurement = UnitOfTime.HOURS
 
     @property
     def native_value(self) -> float:
@@ -79,7 +80,9 @@ class ZoneConfigNumber(BaseMoeBotEntity, NumberEntity):
         self._attr_native_max_value = 100 if self.part == ZoneNumberType.RATIO else 200
         self._attr_native_step = 1
         self._attr_mode = NumberMode.BOX
-        self._number_option_unit_of_measurement = "%" if self.part == ZoneNumberType.RATIO else "m"
+        self._attr_native_unit_of_measurement = (
+            PERCENTAGE if self.part == ZoneNumberType.RATIO else UnitOfLength.METERS
+        )
         self._attr_device_class = NumberDeviceClass.DISTANCE if self.part == ZoneNumberType.DISTANCE else None
 
         self._attr_entity_registry_enabled_default = False
