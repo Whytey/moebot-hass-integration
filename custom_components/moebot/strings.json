@@ -2,20 +2,54 @@
   "config": {
     "step": {
       "user": {
+        "title": "Setup MoeBot Integration",
+        "description": "Choose your preferred connection method to configure your {model}.",
+        "menu_options": {
+          "cloud": "Authenticate via Tuya Cloud Account to retrieve configuration data (Easiest)",
+          "lookup_local_devices": "Scan Local Network Automatically",
+          "device_details": "Configure Device Manually (Hardest)"
+        }
+      },
+      "cloud": {
+        "title": "Tuya Cloud Authentication",
+        "description": "Enter your Tuya Developer account credentials to look up local hardware security keys.",
         "data": {
-          "device_id": "Device ID",
-          "ip_address": "[%key:common::config_flow::data::ip%]",
-          "local_key": "Local Key"
+          "region": "Account Region Code",
+          "api_key": "Tuya Client ID / Access ID",
+          "api_secret": "Tuya Client Secret / Access Secret"
+        }
+      },
+      "device_select": {
+        "title": "Select Device",
+        "description": "The following devices were found. Select one to install it.",
+        "data": {
+          "selected_device": "Device"
+        }
+      },
+      "device_details": {
+        "title": "Manual Device Specifications",
+        "description": "Fill out the exact hardware connection tokens for your local MoeBot.",
+        "data": {
+          "device_id": "Device Virtual ID",
+          "ip_address": "Local LAN IP Address",
+          "local_key": "Tuya Local Encryption Key",
+          "tuya_version": "Tuya Protocol API Version"
         }
       }
     },
+    "progress": {
+      "cloud_connect": "Connecting to Tuya developers API...",
+      "cloud_fetch": "Fetching devices attached to your Tuya Cloud account...",
+      "local_scan": "Scanning local network for matching MoeBot hardware..."
+    },
     "error": {
-      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
-      "unknown": "[%key:common::config_flow::error::unknown%]",
-      "invalid_ip": "Please enter a valid IPv4 address (e.g. 192.168.1.50)"
+      "invalid_ip": "The provided IP address formatting is invalid.",
+      "cannot_connect": "Could not establish a connection to the MoeBot hardware. Check network alignment.",
+      "unknown": "An unhandled software or connection loop error occurred."
     },
     "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+      "already_configured": "This specific MoeBot is already connected to your Home Assistant environment.",
+      "no_devices_found": "No new unconfigured MoeBot devices were found on your network."
     }
   }
 }
