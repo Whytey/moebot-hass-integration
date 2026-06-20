@@ -20,7 +20,7 @@ Easiest install is via [HACS](https://hacs.xyz/)
 
 For manual installation for advanced users, copy `custom_components/moebot` to your `custom_components` folder in Home Assistant then continue from step 2 above.
 
-## Configuration
+## Adding the Integration
 
 Once you have installed the integration (per above)...
 1. Open the Home Assistant web interface.
@@ -29,6 +29,20 @@ Once you have installed the integration (per above)...
 1. Search for "MoeBot" and select it from the list.
 1. Enter the required details; Device ID, IP address and [Local Key](https://github.com/make-all/tuya-local?tab=readme-ov-file#finding-your-device-id-and-local-key)
 1. Click on "Submit" to complete the integration setup.
+
+### Configuration Options
+```mermaid
+flowchart TD
+    START(Start) --> USER{Menu}
+    USER -->|Cloud| CLOUD[Cloud Credentials]
+    USER -->|Local| LOCAL_LOOKUP[Scan Network]
+    USER -->|Manual| DEVICE_DETAILS
+    CLOUD -->|region, api_secret, api_key| CLOUD_LOOKUP[Pull Cloud Devices]
+    CLOUD_LOOKUP --> DEVICE_SELECT[Select Found Devices]
+    LOCAL_LOOKUP --> DEVICE_SELECT
+    DEVICE_SELECT --> DEVICE_DETAILS[Confirm Details]
+    DEVICE_DETAILS -->|device_id, ip_address, local_key, tuya_version| END(End)
+```
 
 <img src="https://raw.githubusercontent.com/WhyTey/pymoebot-hass-integration/master/images/add-device-config1.png">
 
