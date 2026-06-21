@@ -37,11 +37,11 @@ flowchart TD
     USER -->|Cloud| CLOUD[Cloud Credentials]
     USER -->|Local| LOCAL_LOOKUP[Scan Network]
     USER -->|Manual| DEVICE_DETAILS
-    CLOUD -->|region, api_secret, api_key| CLOUD_LOOKUP[Pull Cloud Devices]
+    CLOUD -->|"{region, api_secret, api_key}"| CLOUD_LOOKUP[Pull Cloud Devices]
     CLOUD_LOOKUP --> DEVICE_SELECT[Select Found Devices]
     LOCAL_LOOKUP --> DEVICE_SELECT
     DEVICE_SELECT --> DEVICE_DETAILS[Confirm Details]
-    DEVICE_DETAILS -->|device_id, ip_address, local_key, tuya_version| END(End)
+    DEVICE_DETAILS -->|"{device_id, ip_address, local_key, tuya_version}"| END(End)
 ```
 
 <img src="https://raw.githubusercontent.com/WhyTey/pymoebot-hass-integration/master/images/add-device-config1.png">
