@@ -26,7 +26,7 @@ Once you have installed the integration (per above)...
 1. Open the Home Assistant web interface.
 1. Navigate to "Configuration" > "Integrations".
 1. Click on the "+" button in the bottom right corner to add a new integration.
-1. Search for "MoeBot" and select it from the list.
+1. Search for the "MoeBot" integration and select it from the list.
 1. Enter the required details; Device ID, IP address and [Local Key](https://github.com/make-all/tuya-local?tab=readme-ov-file#finding-your-device-id-and-local-key)
 1. Click on "Submit" to complete the integration setup.
 

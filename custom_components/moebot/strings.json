@@ -2,17 +2,17 @@
   "config": {
     "step": {
       "user": {
-        "title": "Setup MoeBot Integration",
-        "description": "Choose your preferred connection method to configure your {model}.",
+        "title": "Setup MoeBot",
+        "description": "Choose your preferred connection method to configure your MoeBot.",
         "menu_options": {
-          "cloud": "Authenticate via Tuya Cloud Account to retrieve configuration data (Easiest)",
-          "lookup_local_devices": "Scan Local Network Automatically",
-          "device_details": "Configure Device Manually (Hardest)"
+          "cloud": "Authenticate with Tuya Cloud Account. (Easiest)",
+          "lookup_local_devices": "Scan Local Network Automatically.",
+          "device_details": "Configure Device Manually. (Hardest)"
         }
       },
       "cloud": {
         "title": "Tuya Cloud Authentication",
-        "description": "Enter your Tuya Developer account credentials to look up local hardware security keys.",
+        "description": "Enter your Tuya Developer account credentials to look up the device, including the local encryption key.",
         "data": {
           "region": "Account Region Code",
           "api_key": "Tuya Client ID / Access ID",
@@ -20,18 +20,18 @@
         }
       },
       "device_select": {
-        "title": "Select Device",
-        "description": "The following devices were found. Select one to install it.",
+        "title": "Select a Device",
+        "description": "The following devices were found. Select one to configure it.",
         "data": {
           "selected_device": "Device"
         }
       },
       "device_details": {
         "title": "Manual Device Specifications",
-        "description": "Fill out the exact hardware connection tokens for your local MoeBot.",
+        "description": "Enter the details for your MoeBot.",
         "data": {
           "device_id": "Device Virtual ID",
-          "ip_address": "Local LAN IP Address",
+          "ip_address": "Local LAN IP Address (or \"Auto\")",
           "local_key": "Tuya Local Encryption Key",
           "tuya_version": "Tuya Protocol API Version"
         }
@@ -45,7 +45,9 @@
     "error": {
       "invalid_ip": "The provided IP address formatting is invalid.",
       "cannot_connect": "Could not establish a connection to the MoeBot hardware. Check network alignment.",
-      "unknown": "An unhandled software or connection loop error occurred."
+      "unknown": "An unhandled software or connection loop error occurred.",
+      "not_a_moebot": "The device does not appear to be a MoeBot. Please check your device ID and try again.",
+      "no_devices_found": "No new unconfigured MoeBot devices were found on your network."
     },
     "abort": {
       "already_configured": "This specific MoeBot is already connected to your Home Assistant environment.",

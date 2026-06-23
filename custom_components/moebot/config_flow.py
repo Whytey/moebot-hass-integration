@@ -128,9 +128,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_menu(
             step_id="user",
             menu_options=["cloud", "lookup_local_devices", "device_details"],
-            description_placeholders={
-                "model": "Example model",
-            }
         )
 
     async def async_step_cloud(self, user_input=None) -> FlowResult:
